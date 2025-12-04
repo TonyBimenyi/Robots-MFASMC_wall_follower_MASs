@@ -1,0 +1,95 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.2737215740762281 0.9581087827647007 0.08428558758397306 1.8135557863239338
+  position 0.5648053977656278 0.05516141991387324 1.7228474605788122
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorTileSize 2 2
+}
+Wall {
+  translation 0.3 2.14118e-07 0
+  rotation 0 0 1 -1.5707953071795862
+  size 0.01 0.41 0.1
+}
+Wall {
+  translation 0.3 0.37 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(2)"
+  size 0.01 0.41 0.1
+}
+Wall {
+  translation 0.3 -0.37 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(3)"
+  size 0.01 0.41 0.1
+}
+Wall {
+  translation -0.38 -0.37 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(8)"
+  size 0.01 0.23 0.1
+}
+Wall {
+  translation -0.26 0.02 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(9)"
+  size 0.01 0.23 0.1
+}
+Wall {
+  translation 0.09 0 0
+  name "wall(1)"
+  size 0.01 0.45 0.1
+}
+Wall {
+  translation 0.3 -0.27 0
+  name "wall(4)"
+  size 0.01 0.2 0.1
+}
+Wall {
+  translation -0.14 0.39 0
+  name "wall(5)"
+  size 0.01 0.21 0.1
+}
+Wall {
+  translation -0.14 0.03 0
+  name "wall(6)"
+  size 0.01 0.21 0.1
+}
+Wall {
+  translation -0.14 -0.36 0
+  name "wall(7)"
+  size 0.01 0.27 0.1
+}
+Wall {
+  translation -0.31 -0.12 0
+  name "wall(10)"
+  size 0.01 0.27 0.1
+}
+E-puck {
+  hidden position_0_0 1338.5924303345496
+  hidden position_0_1 1353.710312134081
+  hidden linearVelocity_0 1.845283947305802e-08 -1.8714291343258085e-08 1.310601106752074e-08
+  hidden angularVelocity_0 2.5126069174055853e-07 2.8023592900251503e-07 1.208312566141131e-08
+  hidden rotation_1 0 -1 0 6.009225401881916
+  hidden linearVelocity_1 2.006558578855418e-08 -2.0200362541481404e-08 1.376767131366311e-08
+  hidden angularVelocity_1 -3.5202798592239906 -3.2335775622943443 0.0004029693931286456
+  hidden rotation_2 0 -1 0 3.4577142167096286
+  hidden linearVelocity_2 1.9642489789826508e-08 -1.9739833424344117e-08 1.1910475583613699e-08
+  hidden angularVelocity_2 -1.310898835541383 -1.2041354149026076 0.00015009207546162604
+  translation -0.4632202597149212 0.4632256021578797 -2.9749020561565392e-05
+  rotation 0.0027626813632529315 -0.0011633240932199546 0.9999955071242768 2.313772927211745
+  controller "my_controller_wall_follower"
+}
