@@ -17,11 +17,6 @@ This repository contains the implementation of **Model-Free Adaptive Sliding Mod
   - Local tracking error (distance to wall or target trajectory)  
   - Consensus error (difference between robot and neighbors)
   
-- **MFASMC Update (`mfasmc_controller_X`)**: Updates the control input for each robot as:  
-
-\[
-u_i(k) = u_i(k-1) + \Delta u_{i,\text{MFAC}}(k) + \Gamma_i \Delta u_{i,\text{SMC}}(k)
-\]
 
 Where:  
 - **MFAC**: Adaptive term based on the current error `ξ_i`.  

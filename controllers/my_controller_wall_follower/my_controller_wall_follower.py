@@ -23,17 +23,17 @@ NEIGHBORS = {
 
 # --- Formation (distributed) errors ---
 def distributed_error_1(Y1, TargetVelocity1, Y_neighbors):
-    consensus_error = sum(y - Y1 for y in Y_neighbors)
+
     Xi1 = 1.37 * TargetVelocity1 - Y1 + 35
     return Xi1
 
 def distributed_error_2(Y2, TargetVelocity1, Y_neighbors):
-    consensus_error = sum(y - Y2 for y in Y_neighbors)
+
     Xi2 = 1.38 * TargetVelocity1 - Y2 - 15 
     return Xi2
 
 def distributed_error_3(Y3, TargetVelocity1, Y_neighbors):
-    consensus_error = sum(y - Y3 for y in Y_neighbors)
+
     Xi3 = 1.45 * TargetVelocity1 - Y3 - 44 
     return Xi3
 
