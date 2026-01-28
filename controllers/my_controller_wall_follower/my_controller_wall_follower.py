@@ -1,120 +1,181 @@
-"""my_controller_wall_follower controller with PID + CSV logging."""
+from controller import Robot, Motor, DistanceSensor, Camera
+import time, os
+import math
 
-from controller import Robot, Motor, DistanceSensor
-import time
-import os
+# --- Shared constants ---
+DESIRED_LEFT_DISTANCE = 100
 
+# --- MFASMC parameters ---
+RHO = 0.5        # MFAC gain
+LAMBDA = 0.1     # MFAC regularization
+OMEGA = 0.3      # SMC gain
+SIGMA = 0.1      # SMC regularization
+GAMMA = 0.45     # Sliding mode contribution
+ALPHA = 1.0      # Sliding surface coefficient
+TAU_S = 0.05     # Sliding mode reaching law coefficient
+
+# --- Robot topology ---
+NEIGHBORS = {
+    "robot1": ["robot2"],
+    "robot2": ["robot1", "robot3"],
+    "robot3": ["robot2"]
+}
+
+# --- Formation (distributed) errors ---
+def distributed_error_1(Y1, TargetVelocity1, Y_neighbors):
+    consensus_error = sum(y - Y1 for y in Y_neighbors)
+    Xi1 = 1.37 * TargetVelocity1 - Y1 + 35
+    return Xi1
+
+def distributed_error_2(Y2, TargetVelocity1, Y_neighbors):
+    consensus_error = sum(y - Y2 for y in Y_neighbors)
+    Xi2 = 1.38 * TargetVelocity1 - Y2 - 15 
+    return Xi2
+
+def distributed_error_3(Y3, TargetVelocity1, Y_neighbors):
+    consensus_error = sum(y - Y3 for y in Y_neighbors)
+    Xi3 = 1.45 * TargetVelocity1 - Y3 - 44 
+    return Xi3
+
+# --- MFASMC controllers ---
+def mfasmc_controller_1(Y1, Y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors):
+    Xi = distributed_error_1(Y1, DESIRED_LEFT_DISTANCE, Y_neighbors)
+    s = ALPHA * Xi - Xi_prev
+    delta_u_MFAC = (RHO * 1.0 / (LAMBDA + 1.0**2)) * Xi   # phi_i_hat=1 for demo
+    sum_delta_yj = sum(Delta_Y_neighbors)
+    delta_u_SMC = (OMEGA * 1.0 / (SIGMA + 1.0**2)) * (
+        (Xi + sum_delta_yj) / max(1, len(Delta_Y_neighbors)) - Xi / max(1, len(Delta_Y_neighbors)) + TAU_S * math.copysign(1, s)
+    )
+    u = u_prev + delta_u_MFAC + GAMMA * delta_u_SMC
+    return u, Xi
+
+def mfasmc_controller_2(Y2, Y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors):
+    Xi = distributed_error_2(Y2, DESIRED_LEFT_DISTANCE, Y_neighbors)
+    s = ALPHA * Xi - Xi_prev
+    delta_u_MFAC = (RHO * 1.0 / (LAMBDA + 1.0**2)) * Xi
+    sum_delta_yj = sum(Delta_Y_neighbors)
+    delta_u_SMC = (OMEGA * 1.0 / (SIGMA + 1.0**2)) * (
+        (Xi + sum_delta_yj) / max(1, len(Delta_Y_neighbors)) - Xi / max(1, len(Delta_Y_neighbors)) + TAU_S * math.copysign(1, s)
+    )
+    u = u_prev + delta_u_MFAC + GAMMA * delta_u_SMC
+    return u, Xi
+
+def mfasmc_controller_3(Y3, Y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors):
+    Xi = distributed_error_3(Y3, DESIRED_LEFT_DISTANCE, Y_neighbors)
+    s = ALPHA * Xi - Xi_prev
+    delta_u_MFAC = (RHO * 1.0 / (LAMBDA + 1.0**2)) * Xi
+    sum_delta_yj = sum(Delta_Y_neighbors)
+    delta_u_SMC = (OMEGA * 1.0 / (SIGMA + 1.0**2)) * (
+        (Xi + sum_delta_yj) / max(1, len(Delta_Y_neighbors)) - Xi / max(1, len(Delta_Y_neighbors)) + TAU_S * math.copysign(1, s)
+    )
+    u = u_prev + delta_u_MFAC + GAMMA * delta_u_SMC
+    return u, Xi
+
+# --- Mapping Webots names to robot logic ---
+ROBOT_NAME_MAP = {
+    "e-puck": "robot1",
+    "e-puck(1)": "robot2",
+    "e-puck(2)": "robot3"
+}
+
+MFASMC_CONTROLLERS = {
+    "robot1": mfasmc_controller_1,
+    "robot2": mfasmc_controller_2,
+    "robot3": mfasmc_controller_3
+}
+
+# --- Run robot ---
 def run_robot(robot):
-    """Wall following controller"""
-
     timestep = int(robot.getBasicTimeStep())
     max_speed = 3.28
 
-    Kp = 0.02   # stronger proportional
-    Ki = 0.00001
-    Kd = 0.005  # slightly stronger derivative
-    
-    
-    error_sum = 0
-    last_error = 0
-    last_time = time.time()
+    webots_name = robot.getName()
+    robot_name = ROBOT_NAME_MAP.get(webots_name, "robot1")
+    controller_func = MFASMC_CONTROLLERS[robot_name]
+
+    # MFASMC states
+    u_prev = 0.0
+    Xi_prev = 0.0
+    Delta_Y_neighbors = [0.0 for _ in NEIGHBORS[robot_name]]
 
     # Motors
     left_motor = robot.getDevice("left wheel motor")
     right_motor = robot.getDevice("right wheel motor")
-
     left_motor.setPosition(float('inf'))
-    left_motor.setVelocity(0.0)
-
     right_motor.setPosition(float('inf'))
+    left_motor.setVelocity(0.0)
     right_motor.setVelocity(0.0)
 
-    # Sensors ps0–ps7
+    # Sensors
     prox_sensors = []
     for ind in range(8):
         sensor = robot.getDevice(f"ps{ind}")
         sensor.enable(timestep)
         prox_sensors.append(sensor)
 
-    desired_left_distance = 100  # You can adjust this target distance
+    # Camera
+    camera = robot.getDevice("camera")
+    camera.enable(timestep)
+    cam_width = camera.getWidth()
+    cam_height = camera.getHeight()
 
-    # --- CSV file for live plotting ---
-    data_file = "/tmp/webots_live_data.csv"
-    # remove old file at start
-    try:
-        os.remove(data_file)
-    except Exception:
-        pass
-    # write header
+    # CSV logging
+    data_file = f"/tmp/{robot_name}_mfasmc_data.csv"
+    try: os.remove(data_file)
+    except: pass
     with open(data_file, "w") as f:
-        f.write("time,left,front\n")
+        f.write("time,left,front,u,Xi\n")
 
     start_time = time.time()
+    last_time = time.time()
 
-    # Main loop
     while robot.step(timestep) != -1:
-
-        # Read LEFT side sensors
         left_distance = (prox_sensors[5].getValue() + prox_sensors[6].getValue()) / 2.0
-
-        # Read FRONT sensor
         front_distance = prox_sensors[7].getValue()
-
-        # Print distances
-        print("Left distance:", left_distance, " | Front distance:", front_distance)
-
-        # --- WRITE TO CSV ---
-        try:
-            with open(data_file, "a") as f:
-                t = time.time() - start_time
-                f.write(f"{t:.3f},{left_distance:.6f},{front_distance:.6f}\n")
-                f.flush()
-        except Exception as e:
-            print("Warning: failed to write data file:", e)
-
-        # Threshold logic
-        left_wall = left_distance > 80
-        front_wall = front_distance > 80
-
-        # -----------------------
-        # PID COMPUTATION
-        # -----------------------
         current_time = time.time()
         dt = current_time - last_time
         last_time = current_time
 
-        error = desired_left_distance - left_distance
-        error_sum += error * dt
-        d_error = (error - last_error) / dt if dt > 0 else 0
-        last_error = error
+        # --- Read neighbor distances (placeholder) ---
+        y_neighbors = [left_distance for _ in NEIGHBORS[robot_name]]
 
-        pid_output = Kp * error + Ki * error_sum + Kd * d_error
-        pid_output = max(-1.5, min(1.5, pid_output))
-        # -----------------------
+        # --- MFASMC control ---
+        u, Xi = controller_func(left_distance, y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors)
+        u = max(-1.5, min(1.5, u))
+        delta_u = u - u_prev
+        u_prev = u
+        Xi_prev = Xi
+        Delta_Y_neighbors = [delta_u for _ in NEIGHBORS[robot_name]]
 
-        # Wall following actions
-        if front_wall:  # Too close to front wall → turn right
-            print('Turn right in place')
+        # --- Wall-following logic ---
+        left_wall = left_distance > 80
+        front_wall = front_distance > 80
+
+        if front_wall:
             left_motor.setVelocity(max_speed)
             right_motor.setVelocity(-max_speed * 0.3)
-
-        elif left_wall:  # Wall on the left → follow it straight with PID steering
-            print('Drive Forward (PID steering)')
-            
-            left_speed = max_speed - pid_output
-            right_speed = max_speed + pid_output
-
-            # limit speed
-            left_speed = max(-max_speed, min(max_speed, left_speed))
-            right_speed = max(-max_speed, min(max_speed, right_speed))
-
-            left_motor.setVelocity(left_speed)
-            right_motor.setVelocity(right_speed)
-
-        else:  # No wall → turn left to find it
-            print('Turn left')
-            left_motor.setVelocity(max_speed/8)
+        elif left_wall:
+            left_speed = max_speed - u
+            right_speed = max_speed + u
+            left_motor.setVelocity(max(-max_speed, min(max_speed, left_speed)))
+            right_motor.setVelocity(max(-max_speed, min(max_speed, right_speed)))
+        else:
+            left_motor.setVelocity(max_speed / 8)
             right_motor.setVelocity(max_speed)
+
+        # Camera read (optional)
+        image = camera.getImage()
+        center_r = camera.imageGetRed(image, cam_width, cam_width//2, cam_height//2)
+        center_g = camera.imageGetGreen(image, cam_width, cam_width//2, cam_height//2)
+        center_b = camera.imageGetBlue(image, cam_width, cam_width//2, cam_height//2)
+        print(f"{robot_name} | Center RGB: ({center_r},{center_g},{center_b})")
+
+        # CSV logging
+        with open(data_file, "a") as f:
+            t = current_time - start_time
+            f.write(f"{t:.3f},{left_distance:.6f},{front_distance:.6f},{u:.6f},{Xi:.6f}\n")
+
+        print(f"{robot_name} | Left: {left_distance:.2f}, Front: {front_distance:.2f}, u: {u:.3f}, Xi: {Xi:.3f}")
 
 if __name__ == "__main__":
     my_robot = Robot()

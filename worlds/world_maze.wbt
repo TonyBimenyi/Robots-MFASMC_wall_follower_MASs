@@ -2,94 +2,132 @@
 
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "../protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
 
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.2737215740762281 0.9581087827647007 0.08428558758397306 1.8135557863239338
-  position 0.5648053977656278 0.05516141991387324 1.7228474605788122
+  orientation 0.563431411631381 -0.5106955561682582 -0.6494113436775361 4.537617506846895
+  position -0.6993338078092267 -0.37627340898774786 4.304999643635978
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 RectangleArena {
-  floorTileSize 2 2
+  floorTileSize 5 2
+  wallHeight 0.2
 }
 Wall {
-  translation 0.3 2.14118e-07 0
+  translation 0.95 -0.369999 0
   rotation 0 0 1 -1.5707953071795862
-  size 0.01 0.41 0.1
+  size 0.01 0.6 0.1
 }
 Wall {
-  translation 0.3 0.37 0
+  translation 0.7 0.39 0
   rotation 0 0 1 -1.5707953071795862
   name "wall(2)"
-  size 0.01 0.41 0.1
+  size 0.01 1.1 0.1
 }
 Wall {
-  translation 0.3 -0.37 0
+  translation 1.04 0.84 0
   rotation 0 0 1 -1.5707953071795862
   name "wall(3)"
   size 0.01 0.41 0.1
 }
 Wall {
-  translation -0.38 -0.37 0
+  translation -0.52 -0.83 0
   rotation 0 0 1 -1.5707953071795862
   name "wall(8)"
-  size 0.01 0.23 0.1
+  size 0.01 0.5 0.1
 }
 Wall {
-  translation -0.26 0.02 0
+  translation -0.85 0.15 0
   rotation 0 0 1 -1.5707953071795862
   name "wall(9)"
-  size 0.01 0.23 0.1
+  size 0.01 0.8 0.1
 }
 Wall {
-  translation 0.09 0 0
+  translation 0.65 -0.15 0
   name "wall(1)"
   size 0.01 0.45 0.1
 }
 Wall {
-  translation 0.3 -0.27 0
+  translation 0.38 0.95 0
   name "wall(4)"
-  size 0.01 0.2 0.1
+  size 0.01 0.6 0.1
 }
 Wall {
-  translation -0.14 0.39 0
+  translation -0.14 1.05 0
   name "wall(5)"
-  size 0.01 0.21 0.1
+  size 0.01 0.4 0.1
 }
 Wall {
-  translation -0.14 0.03 0
+  translation 0.14 -0.11 0
   name "wall(6)"
-  size 0.01 0.21 0.1
+  size 0.01 1 0.1
 }
 Wall {
-  translation -0.14 -0.36 0
+  translation -0.27 -0.85 0
   name "wall(7)"
-  size 0.01 0.27 0.1
+  size 0.01 0.8 0.1
 }
 Wall {
-  translation -0.31 -0.12 0
+  translation -0.45 0.2 0
   name "wall(10)"
-  size 0.01 0.27 0.1
+  size 0.01 0.5 0.1
+}
+Wall {
+  translation 0.49 -1 0
+  name "wall(11)"
+  size 0.01 0.5 0.1
 }
 E-puck {
-  hidden position_0_0 1338.5924303345496
-  hidden position_0_1 1353.710312134081
-  hidden linearVelocity_0 1.845283947305802e-08 -1.8714291343258085e-08 1.310601106752074e-08
-  hidden angularVelocity_0 2.5126069174055853e-07 2.8023592900251503e-07 1.208312566141131e-08
-  hidden rotation_1 0 -1 0 6.009225401881916
-  hidden linearVelocity_1 2.006558578855418e-08 -2.0200362541481404e-08 1.376767131366311e-08
-  hidden angularVelocity_1 -3.5202798592239906 -3.2335775622943443 0.0004029693931286456
-  hidden rotation_2 0 -1 0 3.4577142167096286
-  hidden linearVelocity_2 1.9642489789826508e-08 -1.9739833424344117e-08 1.1910475583613699e-08
-  hidden angularVelocity_2 -1.310898835541383 -1.2041354149026076 0.00015009207546162604
-  translation -0.4632202597149212 0.4632256021578797 -2.9749020561565392e-05
-  rotation 0.0027626813632529315 -0.0011633240932199546 0.9999955071242768 2.313772927211745
+  hidden position_0_0 5348.260109167926
+  hidden position_0_1 5335.948774105597
+  hidden linearVelocity_0 6.292499177179594e-09 -0.06449159270583826 1.8423263033430802e-08
+  hidden angularVelocity_0 -7.135635290495295e-07 -6.338659660978908e-07 5.905842063570504e-07
+  hidden rotation_1 0 -1 0 5.013772549081476
+  hidden linearVelocity_1 1.92153383002677e-10 -0.06449157472971682 3.0570022469004276e-08
+  hidden angularVelocity_1 3.224576828995457 0.6003976402170461 0.00462545672560833
+  hidden rotation_2 0 -1 0 4.75873699705121
+  hidden linearVelocity_2 6.113262926949741e-09 -0.06449160393649862 5.497026034378829e-09
+  hidden angularVelocity_2 3.2245768097598697 0.6003977506076363 0.004625355903773035
+  translation 0.3381692514977712 1.0119401242686288 -5.567855160892171e-05
+  rotation -0.00013422580664131908 -0.0018874597690792885 -0.999998209737924 1.3867130466314432
+  controller "my_controller_wall_follower"
+}
+E-puck {
+  hidden position_0_0 5292.823307321696
+  hidden position_0_1 5356.340558122145
+  hidden linearVelocity_0 0.06524635151989498 -1.2676770302931575e-06 6.519527121563786e-08
+  hidden angularVelocity_0 8.605711688301109e-06 0.00015112801099137718 8.20300680927304e-06
+  hidden rotation_1 0 1 0 2.3812786764843064
+  hidden linearVelocity_1 0.0652470944502621 -1.2948070236566047e-06 8.551461259998079e-07
+  hidden angularVelocity_1 -0.34119459153920007 3.2623519455938985 0.005116108241808802
+  hidden rotation_2 0 1 0 3.0666764051373336
+  hidden linearVelocity_2 0.0652471198298644 -1.2884763693960309e-06 -7.355575285750073e-07
+  hidden angularVelocity_2 -0.3411946851204986 3.262351937029137 0.0051159729619001245
+  translation -0.2462930679061098 1.2131675448949995 -5.9271186670928344e-05
+  rotation 0.015515371057108773 -0.010368461515828986 0.99982586897257 0.10423327293609741
+  name "e-puck(1)"
+  controller "my_controller_wall_follower"
+}
+E-puck {
+  hidden position_0_0 5291.621703849403
+  hidden position_0_1 5354.922599331581
+  hidden linearVelocity_0 0.06494265388026524 3.7376354881679666e-11 2.5470871250304123e-10
+  hidden angularVelocity_0 2.8652519831617754e-09 -2.0453297321031353e-08 5.814996709428797e-07
+  hidden rotation_1 0 1 0 1.1796752041914615
+  hidden linearVelocity_1 0.064942638994808 -2.1117054279245654e-09 2.4596156209638924e-10
+  hidden angularVelocity_1 -0.4631683124792259 3.2471295947346186 0.004922139154645516
+  hidden rotation_2 0 0.9999999999999999 0 1.6487176145736173
+  hidden linearVelocity_2 0.06494266856991464 2.1500703049036755e-09 2.4886750437879717e-10
+  hidden angularVelocity_2 -0.4631684091535162 3.2471295823187387 0.004922012125408511
+  translation -0.9162060441723996 1.2131681773475345 -5.734571183566364e-05
+  rotation 0.011341262818974227 -0.010100663930808733 0.9998846695223542 0.14169872857793192
+  name "e-puck(2)"
   controller "my_controller_wall_follower"
 }
