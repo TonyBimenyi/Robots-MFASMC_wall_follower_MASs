@@ -9,6 +9,6 @@ orthographicViewHeight: 1
 textFiles: 0 "controllers/my_controller_wall_follower/my_controller_wall_follower.py" "protos/RectangleArena.proto"
 globalOptionalRendering: DistanceSensorRays
 consoles: Console:All:All
-renderingDevicePerspectives: e-puck(1):camera;1;1.69231;0.58589;0.0742297
-renderingDevicePerspectives: e-puck(2):camera;1;1;0.0503067;0.0882353
-renderingDevicePerspectives: e-puck:camera;1;1;0;0
+renderingDevicePerspectives: e-puck(1):camera;1;1.02564;0.58589;0.0742297
+renderingDevicePerspectives: e-puck(2):camera;1;1;0.563804;0.173669
+renderingDevicePerspectives: e-puck:camera;1;1.0375;0.563804;0.442577

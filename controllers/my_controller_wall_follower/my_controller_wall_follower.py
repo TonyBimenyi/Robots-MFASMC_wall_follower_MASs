@@ -3,13 +3,13 @@ import time, os
 import math
 
 # --- MFASMC parameters ---
-RHO = 1.45
+RHO = 2.08
 LAMBDA = 0.2
-OMEGA = 0.35
+OMEGA = 0.2
 SIGMA = 0.15
-GAMMA = 0.4
+GAMMA = 0.3
 ALPHA = 1.0
-TAU_S = 0.08
+TAU_S = 0.03
 PI = 3.1415926
 
 # --- Robot topology ---
@@ -95,7 +95,7 @@ MFASMC_CONTROLLERS = {
 # --- Run robot ---
 def run_robot(robot):
     timestep = int(robot.getBasicTimeStep())
-    max_speed = 3.28
+    max_speed = 4.28
 
     webots_name = robot.getName()
     robot_name = ROBOT_NAME_MAP.get(webots_name, "robot1")
@@ -173,12 +173,12 @@ def run_robot(robot):
             left_motor.setVelocity(max(-max_speed, min(max_speed, left_speed)))
             right_motor.setVelocity(max(-max_speed, min(max_speed, right_speed)))
         else:
-            left_motor.setVelocity(max_speed / 8)
+            left_motor.setVelocity(max_speed / 2)
             right_motor.setVelocity(max_speed)
 
         # Camera read (optional)
         image = camera.getImage()
-        center_r = camera.imageGetRed(image, cam_width, cam_width//15, cam_height//15)
+        center_r = camera.imageGetRed(image, cam_width, cam_width//2, cam_height//2)
         center_g = camera.imageGetGreen(image, cam_width, cam_width//2, cam_height//2)
         center_b = camera.imageGetBlue(image, cam_width, cam_width//2, cam_height//2)
         print(f"{robot_name} | Center RGB: ({center_r},{center_g},{center_b})")
