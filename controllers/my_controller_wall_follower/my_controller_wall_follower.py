@@ -3,7 +3,7 @@ import time, os
 import math
 
 # --- MFASMC parameters ---
-RHO = 1.35
+RHO = 1.45
 LAMBDA = 0.2
 OMEGA = 0.35
 SIGMA = 0.15
@@ -22,9 +22,11 @@ NEIGHBORS = {
 # --- Time-varying desired trajectory ---
 def desired_trajectory(t):
     """Time-varying left wall distance (cm). Example: sinusoidal around 300cm."""
-    return 300 + 50 * math.sin(0.09 * math.pi * t) + 50 * math.cos(0.07 * math.pi * t)
+    # return 300 + 47 * math.sin(0.09 * math.pi * t) + 50 * math.cos(0.07 * math.pi * t)
 
-    return 0.6*sin(0.07*PI*t) + 0.7*cos(0.04*PI*t)
+    return 310 + 40 * math.sin(0.08 * math.pi * t + 0.5) + 45 * math.cos(0.06 * math.pi * t - 0.3)
+    # return 300 + 50 * math.sin((1.2 + 0.3 * math.sin(0.05 * t)) * t)
+    # return 0.6*sin(0.07*PI*t) + 0.7*cos(0.04*PI*t)
 
 
 
@@ -32,7 +34,7 @@ def desired_trajectory(t):
 
 # --- Formation (distributed) errors ---
 def distributed_error_1(Y1, TargetVelocity1, Y_neighbors):
-    Xi1 = 0.9 * TargetVelocity1 - Y1 + 35
+    Xi1 = 0.901 * TargetVelocity1 - Y1 + 35
     return Xi1
 
 def distributed_error_2(Y2, TargetVelocity1, Y_neighbors):
@@ -40,7 +42,7 @@ def distributed_error_2(Y2, TargetVelocity1, Y_neighbors):
     return Xi2
 
 def distributed_error_3(Y3, TargetVelocity1, Y_neighbors):
-    Xi3 = 1.07 * TargetVelocity1 - Y3 - 44 
+    Xi3 = 1.15 * TargetVelocity1 - Y3 - 44 
     return Xi3
 
 # --- MFASMC controllers ---
@@ -176,7 +178,7 @@ def run_robot(robot):
 
         # Camera read (optional)
         image = camera.getImage()
-        center_r = camera.imageGetRed(image, cam_width, cam_width//2, cam_height//2)
+        center_r = camera.imageGetRed(image, cam_width, cam_width//15, cam_height//15)
         center_g = camera.imageGetGreen(image, cam_width, cam_width//2, cam_height//2)
         center_b = camera.imageGetBlue(image, cam_width, cam_width//2, cam_height//2)
         print(f"{robot_name} | Center RGB: ({center_r},{center_g},{center_b})")
