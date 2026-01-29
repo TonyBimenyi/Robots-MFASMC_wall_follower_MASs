@@ -2,17 +2,15 @@ from controller import Robot, Motor, DistanceSensor, Camera
 import time, os
 import math
 
-# --- Shared constants ---
-DESIRED_LEFT_DISTANCE = 100
-
 # --- MFASMC parameters ---
-RHO = 0.5        # MFAC gain
-LAMBDA = 0.1     # MFAC regularization
-OMEGA = 0.3      # SMC gain
-SIGMA = 0.1      # SMC regularization
-GAMMA = 0.45     # Sliding mode contribution
-ALPHA = 1.0      # Sliding surface coefficient
-TAU_S = 0.05     # Sliding mode reaching law coefficient
+RHO = 1.35
+LAMBDA = 0.2
+OMEGA = 0.35
+SIGMA = 0.15
+GAMMA = 0.4
+ALPHA = 1.0
+TAU_S = 0.08
+PI = 3.1415926
 
 # --- Robot topology ---
 NEIGHBORS = {
@@ -21,36 +19,32 @@ NEIGHBORS = {
     "robot3": ["robot2"]
 }
 
+# --- Time-varying desired trajectory ---
+def desired_trajectory(t):
+    """Time-varying left wall distance (cm). Example: sinusoidal around 300cm."""
+    return 300 + 50 * math.sin((1.2 + 0.3 * math.sin(0.05 * t)) * t)
+    return 0.6*sin(0.07*PI*t) + 0.7*cos(0.04*PI*t)
+
+
+
+
+
 # --- Formation (distributed) errors ---
 def distributed_error_1(Y1, TargetVelocity1, Y_neighbors):
-
-    Xi1 = 1.37 * TargetVelocity1 - Y1 + 35
+    Xi1 = 0.9 * TargetVelocity1 - Y1 + 35
     return Xi1
 
 def distributed_error_2(Y2, TargetVelocity1, Y_neighbors):
-
-    Xi2 = 1.38 * TargetVelocity1 - Y2 - 15 
+    Xi2 = 1.07 * TargetVelocity1 - Y2 - 15 
     return Xi2
 
 def distributed_error_3(Y3, TargetVelocity1, Y_neighbors):
-
-    Xi3 = 1.45 * TargetVelocity1 - Y3 - 44 
+    Xi3 = 1.05 * TargetVelocity1 - Y3 - 44 
     return Xi3
 
 # --- MFASMC controllers ---
-def mfasmc_controller_1(Y1, Y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors):
-    Xi = distributed_error_1(Y1, DESIRED_LEFT_DISTANCE, Y_neighbors)
-    s = ALPHA * Xi - Xi_prev
-    delta_u_MFAC = (RHO * 1.0 / (LAMBDA + 1.0**2)) * Xi   # phi_i_hat=1 for demo
-    sum_delta_yj = sum(Delta_Y_neighbors)
-    delta_u_SMC = (OMEGA * 1.0 / (SIGMA + 1.0**2)) * (
-        (Xi + sum_delta_yj) / max(1, len(Delta_Y_neighbors)) - Xi / max(1, len(Delta_Y_neighbors)) + TAU_S * math.copysign(1, s)
-    )
-    u = u_prev + delta_u_MFAC + GAMMA * delta_u_SMC
-    return u, Xi
-
-def mfasmc_controller_2(Y2, Y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors):
-    Xi = distributed_error_2(Y2, DESIRED_LEFT_DISTANCE, Y_neighbors)
+def mfasmc_controller_1(Y1, Y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors, TargetVelocity):
+    Xi = distributed_error_1(Y1, TargetVelocity, Y_neighbors)
     s = ALPHA * Xi - Xi_prev
     delta_u_MFAC = (RHO * 1.0 / (LAMBDA + 1.0**2)) * Xi
     sum_delta_yj = sum(Delta_Y_neighbors)
@@ -60,8 +54,19 @@ def mfasmc_controller_2(Y2, Y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors):
     u = u_prev + delta_u_MFAC + GAMMA * delta_u_SMC
     return u, Xi
 
-def mfasmc_controller_3(Y3, Y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors):
-    Xi = distributed_error_3(Y3, DESIRED_LEFT_DISTANCE, Y_neighbors)
+def mfasmc_controller_2(Y2, Y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors, TargetVelocity):
+    Xi = distributed_error_2(Y2, TargetVelocity, Y_neighbors)
+    s = ALPHA * Xi - Xi_prev
+    delta_u_MFAC = (RHO * 1.0 / (LAMBDA + 1.0**2)) * Xi
+    sum_delta_yj = sum(Delta_Y_neighbors)
+    delta_u_SMC = (OMEGA * 1.0 / (SIGMA + 1.0**2)) * (
+        (Xi + sum_delta_yj) / max(1, len(Delta_Y_neighbors)) - Xi / max(1, len(Delta_Y_neighbors)) + TAU_S * math.copysign(1, s)
+    )
+    u = u_prev + delta_u_MFAC + GAMMA * delta_u_SMC
+    return u, Xi
+
+def mfasmc_controller_3(Y3, Y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors, TargetVelocity):
+    Xi = distributed_error_3(Y3, TargetVelocity, Y_neighbors)
     s = ALPHA * Xi - Xi_prev
     delta_u_MFAC = (RHO * 1.0 / (LAMBDA + 1.0**2)) * Xi
     sum_delta_yj = sum(Delta_Y_neighbors)
@@ -124,23 +129,28 @@ def run_robot(robot):
     try: os.remove(data_file)
     except: pass
     with open(data_file, "w") as f:
-        f.write("time,left,front,u,Xi\n")
+        f.write("time,left,front,u,Xi,desired\n")
 
     start_time = time.time()
     last_time = time.time()
 
     while robot.step(timestep) != -1:
-        left_distance = (prox_sensors[5].getValue() + prox_sensors[6].getValue()) / 2.0
-        front_distance = prox_sensors[7].getValue()
         current_time = time.time()
         dt = current_time - last_time
         last_time = current_time
+
+        # --- Get left and front distances ---
+        left_distance = (prox_sensors[5].getValue() + prox_sensors[6].getValue()) / 2.0
+        front_distance = prox_sensors[7].getValue()
+
+        # --- Time-varying desired ---
+        TargetVelocity = desired_trajectory(current_time - start_time)
 
         # --- Read neighbor distances (placeholder) ---
         y_neighbors = [left_distance for _ in NEIGHBORS[robot_name]]
 
         # --- MFASMC control ---
-        u, Xi = controller_func(left_distance, y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors)
+        u, Xi = controller_func(left_distance, y_neighbors, u_prev, Xi_prev, Delta_Y_neighbors, TargetVelocity)
         u = max(-1.5, min(1.5, u))
         delta_u = u - u_prev
         u_prev = u
@@ -153,7 +163,7 @@ def run_robot(robot):
 
         if front_wall:
             left_motor.setVelocity(max_speed)
-            right_motor.setVelocity(-max_speed * 0.3)
+            right_motor.setVelocity(-max_speed * 0.1)
         elif left_wall:
             left_speed = max_speed - u
             right_speed = max_speed + u
@@ -173,9 +183,9 @@ def run_robot(robot):
         # CSV logging
         with open(data_file, "a") as f:
             t = current_time - start_time
-            f.write(f"{t:.3f},{left_distance:.6f},{front_distance:.6f},{u:.6f},{Xi:.6f}\n")
+            f.write(f"{t:.3f},{left_distance:.6f},{front_distance:.6f},{u:.6f},{Xi:.6f},{TargetVelocity:.6f}\n")
 
-        print(f"{robot_name} | Left: {left_distance:.2f}, Front: {front_distance:.2f}, u: {u:.3f}, Xi: {Xi:.3f}")
+        print(f"{robot_name} | Left: {left_distance:.2f}, Front: {front_distance:.2f}, u: {u:.3f}, Xi: {Xi:.3f}, Desired: {TargetVelocity:.2f}")
 
 if __name__ == "__main__":
     my_robot = Robot()
