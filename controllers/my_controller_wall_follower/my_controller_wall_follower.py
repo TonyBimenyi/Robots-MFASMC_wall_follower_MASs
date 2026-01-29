@@ -22,7 +22,8 @@ NEIGHBORS = {
 # --- Time-varying desired trajectory ---
 def desired_trajectory(t):
     """Time-varying left wall distance (cm). Example: sinusoidal around 300cm."""
-    return 300 + 50 * math.sin((1.2 + 0.3 * math.sin(0.05 * t)) * t)
+    return 300 + 50 * math.sin(0.09 * math.pi * t) + 50 * math.cos(0.07 * math.pi * t)
+
     return 0.6*sin(0.07*PI*t) + 0.7*cos(0.04*PI*t)
 
 
@@ -39,7 +40,7 @@ def distributed_error_2(Y2, TargetVelocity1, Y_neighbors):
     return Xi2
 
 def distributed_error_3(Y3, TargetVelocity1, Y_neighbors):
-    Xi3 = 1.05 * TargetVelocity1 - Y3 - 44 
+    Xi3 = 1.07 * TargetVelocity1 - Y3 - 44 
     return Xi3
 
 # --- MFASMC controllers ---

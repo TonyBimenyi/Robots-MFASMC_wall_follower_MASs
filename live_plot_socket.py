@@ -11,7 +11,7 @@ DATA_FILES = {
 }
 
 POLL_INTERVAL = 0.15  # seconds
-MAX_POINTS = 800
+MAX_POINTS = 14000
 
 # --- Setup the live plot ---
 plt.ion()
