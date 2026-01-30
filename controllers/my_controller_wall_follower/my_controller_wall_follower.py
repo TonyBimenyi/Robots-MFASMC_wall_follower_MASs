@@ -3,13 +3,13 @@ import time, os
 import math
 
 # --- MFASMC parameters ---
-RHO = 2.08
+RHO = 1.45
 LAMBDA = 0.2
-OMEGA = 0.2
+OMEGA = 0.35
 SIGMA = 0.15
-GAMMA = 0.3
+GAMMA = 0.4
 ALPHA = 1.0
-TAU_S = 0.03
+TAU_S = 0.0005
 PI = 3.1415926
 
 # --- Robot topology ---
@@ -95,7 +95,7 @@ MFASMC_CONTROLLERS = {
 # --- Run robot ---
 def run_robot(robot):
     timestep = int(robot.getBasicTimeStep())
-    max_speed = 4.28
+    max_speed = 3.28
 
     webots_name = robot.getName()
     robot_name = ROBOT_NAME_MAP.get(webots_name, "robot1")
@@ -173,7 +173,7 @@ def run_robot(robot):
             left_motor.setVelocity(max(-max_speed, min(max_speed, left_speed)))
             right_motor.setVelocity(max(-max_speed, min(max_speed, right_speed)))
         else:
-            left_motor.setVelocity(max_speed / 2)
+            left_motor.setVelocity(max_speed / 8)
             right_motor.setVelocity(max_speed)
 
         # Camera read (optional)
